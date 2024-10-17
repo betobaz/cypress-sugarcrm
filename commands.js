@@ -1,15 +1,13 @@
 class cySugar{
-	constructor(){
-		cy.fixture('sugarcrm-envs')
-		.then(function(envs){
-			this.env = envs[sugarcrm_env]
-			cy.wrap(this.env).as('env')    
-		})
-
-	}
 
 	login(username) {
-		cy.get('@env').then((env) => {		
+		cy.fixture('sugarcrm-envs')
+		.then(function(envs){
+			const sugarcrm_env = Cypress.env("sugarcrm_env")
+			this.sugarcrm_env = envs[sugarcrm_env];
+			cy.wrap(this.sugarcrm_env).as('sugarcrm_env');    
+		})
+		cy.get('@sugarcrm_env').then((env) => {		
 			Cypress.config('baseUrl', env.url)
 			debugger;
 			const current_user = env.users[username]
