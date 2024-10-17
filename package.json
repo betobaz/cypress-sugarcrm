@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["Cypress", "SugarCRM", "Commands", "End to End", "e2e", "Test", "Testing"],
   "author": "",
   "license": "ISC",
   "devDependencies": {
