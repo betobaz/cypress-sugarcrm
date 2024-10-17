@@ -1,6 +1,6 @@
 # cypress-sugarcrm
 
-Cypress-sugarcrm is a libray base on Cypress.io that provides commands for automating interactiso with both local and on-demand SugarCRM intances. It also supports SugarCRM REST API operations.
+Cypress-sugarcrm is a libray base on Cypress.io that provides commands for automating interactions with both local and on-demand SugarCRM intances. It also supports SugarCRM REST API operations.
 
 ## How to use
 
