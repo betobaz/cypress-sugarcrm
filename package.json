@@ -1,7 +1,7 @@
 {
   "name": "cypress-sugarcrm",
-  "version": "1.0.5",
-  "description": "",
+  "version": "1.0.6",
+  "description": "Cypress-sugarcrm is a libray base on Cypress.io that provides commands for automating interactions with both local and on-demand SugarCRM intances. It also supports SugarCRM REST API operations.",
   "main": "commands.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,5 +12,9 @@
   "devDependencies": {
     "cypress": "^13.15.0",
     "dayjs": "^1.11.13"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/betobaz/cypress-sugarcrm.git"
   }
 }
