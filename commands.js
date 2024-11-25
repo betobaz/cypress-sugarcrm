@@ -9,7 +9,6 @@ class cySugar{
 		})
 		cy.get('@sugarcrm_env').then((env) => {		
 			Cypress.config('baseUrl', env.url)
-			debugger;
 			const current_user = env.users[username]
 			cy.wrap(current_user).as("current_user")				
 			const ondemand = /sugarondemand.com/;		
