@@ -116,12 +116,13 @@ class cySugar{
 	// })
 	
 	// Cypress.Commands.add("selectEnumOption", (field_name, option) => {
-	// 	cy.get(`[data-fieldname="${field_name}"] a.select2-choice`).click()
-	// 	cy.get('@body').find('div#select2-drop.select2-drop-active', {timeout:3000}).within(($selec2_results) => {
-	// 		cy.contains(option).click()
-	// 	})
-	// 	return cy.get(`[data-fieldname="${field_name}"]`)
-	// })
+	select_enum_option(field_name, option) {
+		cy.get(`[data-fieldname="${field_name}"] a.select2-choice`).click()
+		cy.get('@body').find('div#select2-drop.select2-drop-active', {timeout:3000}).within(($selec2_results) => {
+			cy.contains(option).click()
+		})
+		return cy.get(`[data-fieldname="${field_name}"]`)
+	}
 	
 	// Cypress.Commands.add("unselectMultiEnumOption", (field_name, option) => {
 	// 	cy.get(`[data-fieldname="${field_name}"]`).contains('li',option).find('a').click()
@@ -137,13 +138,14 @@ class cySugar{
 	// })
 	
 	// Cypress.Commands.add("selectRelateOption", (field_name, option) => {
-	// 	cy.get(`[data-fieldname="${field_name}"] a.select2-choice`).click()
-	// 	cy.get('@body').find('div#select2-drop.select2-drop-active').within(($selec2_results) => {
-	// 		cy.get(`input.select2-input`).type(option)
-	// 		cy.get(`li.select2-result-selectable:contains(${option})`, {timeout:10000}).click()
-	// 	})
-	// 	return cy.get(`[data-fieldname="${field_name}"]`)
-	// })
+	select_relate_option(field_name, option) {
+		cy.get(`[data-fieldname="${field_name}"] a.select2-choice`).click()
+		cy.get('@body').find('div#select2-drop.select2-drop-active').within(($selec2_results) => {
+			cy.get(`input.select2-input`).type(option)
+			cy.get(`li.select2-result-selectable:contains(${option})`, {timeout:10000}).click()
+		})
+		return cy.get(`[data-fieldname="${field_name}"]`)
+	}
 	
 	// Cypress.Commands.add("newBeanFromSubpanel", (link) => {
 	// 	cy.get(`[data-subpanel-link="${link}"] a[name="create_button"]`).click({force:true})
@@ -248,53 +250,54 @@ class cySugar{
 	//   })
 	
 	//   Cypress.Commands.add("set_field_value", (module, field_name, value) => {	
-	// 	cy.get('@metadata').then((metadata) => {
-	// 		const field = metadata[module].fields[field_name]		
-	// 		switch(field.type){
-	// 			case "varchar":
-	// 			case "name":
-	// 			case "phone":			
-	// 			case "date":
-	// 			case "int":			
-	// 			case "currency":	
-	// 				if(field.group){	
-	// 					cy.get(`div.fieldset-field[data-name=${field_name}] input[type=text][name=${field_name}]`).clear().type(value)
-	// 				}
-	// 				else{
-	// 					cy.get(`.record-cell[data-name=${field_name}] input[type=text][name=${field_name}]`).clear().type(value)
-	// 				}
-	// 			break
-	// 			case "text":	
-	// 				if(field.group){
-	// 					cy.get(`div.fieldset-field[data-name=${field_name}] textarea`).clear().type(value)
-	// 				}
-	// 				else{
-	// 					cy.get(`.record-cell[data-name=${field_name}] textarea`).clear().type(value)
-	// 				}				
-	// 			break
-	// 			case "enum":
-	// 				cy.selectEnumOption(field_name, value)
-	// 			break;
-	// 			case "relate":
-	// 				cy.selectRelateOption(field_name, value)
-	// 			break;
-	// 			case "bool":
-	// 				if(value){
-	// 					cy.get(`.record-cell[data-name=${field_name}] input[type=checkbox]`).check()
-	// 				}
-	// 				else{
-	// 					cy.get(`.record-cell[data-name=${field_name}] input[type=checkbox]`).uncheck()
-	// 				}				
-	// 			break;
-	// 			case "email":
-	// 				cy.get(`.record-cell[data-name=${field_name}] input[type=text]`).clear().type(value)
-	// 			break;
-	// 			default:
-	// 				cy.log(`set_field_value Not implement ${field.type}`)
-	// 			break;
-	// 		}
-	// 	})
-	// })
+	set_field_value (module, field_name, value) {	
+		cy.get('@metadata').then((metadata) => {
+			const field = metadata[module].fields[field_name]		
+			switch(field.type){
+				case "varchar":
+				case "name":
+				case "phone":			
+				case "date":
+				case "int":			
+				case "currency":	
+					if(field.group){	
+						cy.get(`div.fieldset-field[data-name=${field_name}] input[type=text][name=${field_name}]`).clear().type(value)
+					}
+					else{
+						cy.get(`.record-cell[data-name=${field_name}] input[type=text][name=${field_name}]`).clear().type(value)
+					}
+				break
+				case "text":	
+					if(field.group){
+						cy.get(`div.fieldset-field[data-name=${field_name}] textarea`).clear().type(value)
+					}
+					else{
+						cy.get(`.record-cell[data-name=${field_name}] textarea`).clear().type(value)
+					}				
+				break
+				case "enum":
+					this.select_enum_option(field_name, value)
+				break;
+				case "relate":
+					this.select_relate_option(field_name, value)
+				break;
+				case "bool":
+					if(value){
+						cy.get(`.record-cell[data-name=${field_name}] input[type=checkbox]`).check()
+					}
+					else{
+						cy.get(`.record-cell[data-name=${field_name}] input[type=checkbox]`).uncheck()
+					}				
+				break;
+				case "email":
+					cy.get(`.record-cell[data-name=${field_name}] input[type=text]`).clear().type(value)
+				break;
+				default:
+					cy.log(`set_field_value Not implement ${field.type}`)
+				break;
+			}
+		})
+	}
 	
 	// Cypress.Commands.add("record_expand_panel", (name) => {	
 	// 	cy.get(`.record-panel span.record-panel-header:contains(${name})`).click()

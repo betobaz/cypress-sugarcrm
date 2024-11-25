@@ -94,15 +94,42 @@ npx cypress open --env sugarcrm_env=local
 
 ### Commands
 
+
 #### Login
 
-#### Logout
+Log in to the SugarCRM instance using the provided username. The corresponding credential ifnromation is reatrived from the *fixtures/sugarcrm-envs.json* file.
+
+Syntax
+
+```javascript
+    cySugar.login('admin');
+```
 
 #### Visit
+
+Navigate to the specified SugarCRM URL and wait for the **Loading...** message disappear before proceeding to the next step.
+
+Syntax
+
+```javascript
+    cySugar.visit('/#Accounts');
+```
+
+#### Set Field Value
+This command sets a value in the recor view of a module using the system field name. The appropriate actions are performed base on the field's metadata type (e.g. varchar, int, enum, etc).
+
+Syntax
+
+```javascript
+    cySugar.set_field_value('Accounts','name','Company ABC');
+    cySugar.set_field_value('Accounts','email1','company@abc.com');
+    cySugar.set_field_value('Accounts','external_id_c','123456');
+```
 
 #### Record Actions
 
 #### API Call
 
+#### Logout
 
 
