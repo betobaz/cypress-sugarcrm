@@ -96,23 +96,23 @@ class cySugar{
 	// })
 	
 	
-	// Cypress.Commands.add("saveBean", () => {
-	// 	cy.get("#drawers .drawer.active").within(($drawer) => {
-	// 		cy.get('a[name="save_button"]').click()
-	// 	})
+	save_new_bean(timeout=50000){
+		cy.get("#drawers .drawer.active").within(($drawer) => {
+			cy.get('a[name="save_button"]').click()
+		})
 		
-	// 	cy.get('#alerts div.alert.alert-process', {timeout:10000})
-	// 		.should('not.be.visible')
-	// 	// cy.pause();
-	// 	cy.get('#alerts div.alert.alert-success', {timeout:10000})
-	// 		.should('be.visible')
-	// 		.and('contain', 'You successfully created')
+		cy.get('#alerts .alert-process', {timeout:timeout})
+			.should('be.visible')
+			.should('not.be.visible')
+		cy.get('#alerts .alert-success', {timeout:timeout})
+			.should('be.visible')
+			.and('contain', 'You successfully created')
 	
-	// 	return cy.get('#alerts div.alert.alert-success').find("a").then(($a) => {
-	// 		let href = Cypress.$($a).attr("href").split("/");
-	// 		return cy.wrap({id:href[1]})
-	// 	})
-	// })
+		return cy.get('#alerts div.alert.alert-success').find("a").then(($a) => {
+			let href = Cypress.$($a).attr("href").split("/");
+			return cy.wrap({id:href[1]})
+		})
+	}
 	
 	// Cypress.Commands.add("selectEnumOption", (field_name, option) => {
 	select_enum_option(field_name, option) {
