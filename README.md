@@ -115,6 +115,24 @@ Syntax
     cySugar.visit('/#Accounts');
 ```
 
+#### Open Sidebar Nav
+Navigate to the specified SugarCRM URL and wait for the **Loading...** message disappear before proceeding to the next step.
+
+Syntax
+
+```javascript
+    cySugar.openSidebarNav();
+```
+
+#### Open Sidebar Nav Module
+Navigate to the specified SugarCRM URL and wait for the **Loading...** message disappear before proceeding to the next step.
+
+Syntax
+
+```javascript
+    cySugar.openSidebarNavModule('Opportunities');
+```
+
 #### Set Field Value
 This command sets a value in the recor view of a module using the system field name. The appropriate actions are performed base on the field's metadata type (e.g. varchar, int, enum, etc).
 
