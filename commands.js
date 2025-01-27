@@ -319,12 +319,12 @@ class cySugar{
 	// 	cy.get(`.content-tabs li span:contains("${tab_name}")`).click()
 	// })
 	
-	openSidebarNav(){
+	open_sidebar_nav(){
 		cy.get('#sidebar-nav .collapsed .sicon-hamburger-lg').click()
 	}
 
-	openSidebarNaveModule(moduleName){
-		this.openSidebarNav();
+	open_sidebar_nav_module(moduleName){
+		this.open_sidebar_nav();
 		cy.get(`#sidebar-nav .sidebar-nav-item:contains(${moduleName})`).click()
 	}
 };
