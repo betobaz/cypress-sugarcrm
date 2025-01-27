@@ -96,10 +96,16 @@ class cySugar{
 	// })
 	
 	
-	save_new_bean(timeout=50000){
-		cy.get("#drawers .drawer.active").within(($drawer) => {
+	save_new_bean(on_drawer = true, timeout=50000){
+
+		if(on_drawer){
+			cy.get("#drawers .drawer.active").within(($drawer) => {
+				cy.get('a[name="save_button"]').click()
+			})
+		}
+		else{
 			cy.get('a[name="save_button"]').click()
-		})
+		}
 		
 		cy.get('#alerts .alert-process', {timeout:timeout})
 			.should('be.visible')
