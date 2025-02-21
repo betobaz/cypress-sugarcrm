@@ -94,30 +94,41 @@ class cySugar{
 	// 		return cy.wrap(win.App.metadata.getModule(module_name))
 	// 	})
 	// })
+	click_create(){
+		cy.get('[name="create_button"]').click();
+	}
 	
-	
-	save_new_bean(on_drawer = true, timeout=50000){
+	click_record_edit(){
+		cy.get('.main-pane [name="edit_button"]').click();
+	}
 
-		if(on_drawer){
-			cy.get("#drawers .drawer.active").within(($drawer) => {
-				cy.get('a[name="save_button"]').click()
-			})
-		}
-		else{
+	click_record_save(){
+		cy.get('.main-pane [name="save_button"]').click();
+	}
+
+	check_update_open_revelue_line_items(field_name){
+		cy.get(`.record .record-cell[data-name="${field_name}"] input:checkbox`).click()
+	}
+
+	save_new_bean(timeout=1000, close_alert=false){
+		cy.get("#drawers .drawer.active").within(($drawer) => {
 			cy.get('a[name="save_button"]').click()
-		}
+		})
 		
-		cy.get('#alerts .alert-process', {timeout:timeout})
-			.should('be.visible')
-			.should('not.be.visible')
+		
 		cy.get('#alerts .alert-success', {timeout:timeout})
 			.should('be.visible')
 			.and('contain', 'You successfully created')
 	
-		return cy.get('#alerts div.alert.alert-success').find("a").then(($a) => {
+		cy.get('#alerts div.alert.alert-success').find("a").then(($a) => {
 			let href = Cypress.$($a).attr("href").split("/");
-			return cy.wrap({id:href[1]})
+			cy.wrap({id:href[1]}).as("new_record_id")
 		})
+
+		cy.get('#alerts div.alert.alert-success .close').click()
+		// cy.pause()}}
+		cy.wait(1000)
+		return cy.get("@new_record_id")
 	}
 	
 	// Cypress.Commands.add("selectEnumOption", (field_name, option) => {
@@ -143,13 +154,24 @@ class cySugar{
 	// })
 	
 	// Cypress.Commands.add("selectRelateOption", (field_name, option) => {
-	select_relate_option(field_name, option) {
-		cy.get(`[data-fieldname="${field_name}"] a.select2-choice`).click()
+	select_relate_option(field_name, option, on_table = false) {
+		debugger
+		if(on_table){
+			cy.get(`[name="${field_name}"]`).parent().find(`a.select2-choice`).click()
+		}
+		else{
+			cy.get(`[data-fieldname="${field_name}"] a.select2-choice`).click()
+		}
 		cy.get('@body').find('div#select2-drop.select2-drop-active').within(($selec2_results) => {
 			cy.get(`input.select2-input`).type(option)
 			cy.get(`li.select2-result-selectable:contains(${option})`, {timeout:10000}).click()
 		})
-		return cy.get(`[data-fieldname="${field_name}"]`)
+		if(on_table){
+			return cy.get(`[name="${field_name}"]`)
+		}
+		else{
+			return cy.get(`[data-fieldname="${field_name}"]`)
+		}
 	}
 	
 	// Cypress.Commands.add("newBeanFromSubpanel", (link) => {
@@ -255,7 +277,7 @@ class cySugar{
 	//   })
 	
 	//   Cypress.Commands.add("set_field_value", (module, field_name, value) => {	
-	set_field_value (module, field_name, value) {	
+	set_field_value (module, field_name, value, on_table = false) {	
 		cy.get('@metadata').then((metadata) => {
 			const field = metadata[module].fields[field_name]		
 			switch(field.type){
@@ -263,13 +285,19 @@ class cySugar{
 				case "name":
 				case "phone":			
 				case "date":
+				case "decimal":
 				case "int":			
 				case "currency":	
 					if(field.group){	
 						cy.get(`div.fieldset-field[data-name=${field_name}] input[type=text][name=${field_name}]`).clear().type(value)
 					}
 					else{
-						cy.get(`.record-cell[data-name=${field_name}] input[type=text][name=${field_name}]`).clear().type(value)
+						if(on_table){
+							cy.get(`input[type=text][name=${field_name}]`).clear().type(value)
+						}
+						else{
+							cy.get(`.record-cell[data-name=${field_name}] input[type=text][name=${field_name}]`).clear().type(value)
+						}
 					}
 				break
 				case "text":	
@@ -284,7 +312,7 @@ class cySugar{
 					this.select_enum_option(field_name, value)
 				break;
 				case "relate":
-					this.select_relate_option(field_name, value)
+					this.select_relate_option(field_name, value, on_table)
 				break;
 				case "bool":
 					if(value){
@@ -332,6 +360,28 @@ class cySugar{
 	open_sidebar_nav_module(moduleName){
 		this.open_sidebar_nav();
 		cy.get(`#sidebar-nav .sidebar-nav-item:contains(${moduleName})`).click()
+	}
+
+	set_values(moduleName, data){
+		// cy.wrap(null).then(()=>{
+			Object.keys(data).forEach(key => {
+				this.set_field_value(moduleName,key,data[key])
+			});
+		// })
+		
+	}
+
+	rli_set_values(index, data, addNewLine = false){
+		const moduleName = "RevenueLineItems";
+		if(addNewLine){
+			var prevLine = index-1;
+			cy.get(`[data-subpanel-link="revenuelineitems"] tbody tr:eq(${prevLine}) .addBtn`).click()
+		}
+		cy.get(`[data-subpanel-link="revenuelineitems"] tbody tr:eq(${index})`).within((tr) => {
+			Object.keys(data).forEach(key => {
+				this.set_field_value(moduleName, key, data[key], true)
+			});
+		})
 	}
 };
 	
