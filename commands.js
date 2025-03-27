@@ -21,10 +21,10 @@ class cySugar{
 						cy.on('uncaught:exception', (err, runnable) => {
 							return false
 						})	
-						cy.get('input[name=user_name]').type(current_user.username)	
+						cy.get('input[name=user_identifier]').type(current_user.username)	
 						cy.log(current_user.password)
 						cy.get('input[name=password]').type(current_user.password)
-						cy.get('a[name=login_button]').click()					
+						cy.get('a[name=submit_btn]').click()					
 					})
 				})			
 			}
@@ -103,14 +103,14 @@ class cySugar{
 	}
 
 	click_record_save(){
-		cy.get('.main-pane [name="save_button"]').click();
+		cy.get('.main-pane [name="save_button"]', {timeout: 10000}).click();
 	}
 
 	check_update_open_revelue_line_items(field_name){
 		cy.get(`.record .record-cell[data-name="${field_name}"] input:checkbox`).click()
 	}
 
-	save_new_bean(timeout=1000, close_alert=false){
+	save_new_bean(timeout=5000, close_alert=false){
 		cy.get("#drawers .drawer.active").within(($drawer) => {
 			cy.get('a[name="save_button"]').click()
 		})
@@ -135,7 +135,12 @@ class cySugar{
 	select_enum_option(field_name, option) {
 		cy.get(`[data-fieldname="${field_name}"] a.select2-choice`).click()
 		cy.get('@body').find('div#select2-drop.select2-drop-active', {timeout:3000}).within(($selec2_results) => {
-			cy.contains(option).click()
+			if (typeof option === "object" && option !== null) {
+				cy.contains(option.option).eq(option.index).click()
+			}
+			else{
+				cy.contains(option).click()
+			}
 		})
 		return cy.get(`[data-fieldname="${field_name}"]`)
 	}
@@ -155,16 +160,24 @@ class cySugar{
 	
 	// Cypress.Commands.add("selectRelateOption", (field_name, option) => {
 	select_relate_option(field_name, option, on_table = false) {
-		debugger
 		if(on_table){
 			cy.get(`[name="${field_name}"]`).parent().find(`a.select2-choice`).click()
 		}
 		else{
 			cy.get(`[data-fieldname="${field_name}"] a.select2-choice`).click()
 		}
+		let search = option;
+		if (typeof option === "object" && option !== null) {
+			search = option.option;
+		}
 		cy.get('@body').find('div#select2-drop.select2-drop-active').within(($selec2_results) => {
-			cy.get(`input.select2-input`).type(option)
-			cy.get(`li.select2-result-selectable:contains(${option})`, {timeout:10000}).click()
+			cy.get(`input.select2-input`).type(search)
+			if (typeof option === "object" && option !== null) {
+				cy.get(`li.select2-result-selectable:contains(${search})`, {timeout:10000}).eq(option.index).click()
+			}
+			else{
+				cy.get(`li.select2-result-selectable:contains(${search})`, {timeout:10000}).click()
+			}
 		})
 		if(on_table){
 			return cy.get(`[name="${field_name}"]`)
@@ -174,10 +187,10 @@ class cySugar{
 		}
 	}
 	
-	// Cypress.Commands.add("newBeanFromSubpanel", (link) => {
-	// 	cy.get(`[data-subpanel-link="${link}"] a[name="create_button"]`).click({force:true})
-	// 	return cy.get("#drawers .drawer.active")
-	// })
+	new_related_bean(link){
+		cy.get(`[data-subpanel-link="${link}"] a[name="create_button"]`).click({force:true})
+		return cy.get("#drawers .drawer.active")
+	}
 	
 	// Cypress.Commands.add("openRecordBean", (module_name, id) => {
 	// 	cy.visit(`/#${module_name}/${id}`)
@@ -286,6 +299,7 @@ class cySugar{
 				case "phone":			
 				case "date":
 				case "decimal":
+				case "float":
 				case "int":			
 				case "currency":	
 					if(field.group){	
@@ -378,6 +392,23 @@ class cySugar{
 			cy.get(`[data-subpanel-link="revenuelineitems"] tbody tr:eq(${prevLine}) .addBtn`).click()
 		}
 		cy.get(`[data-subpanel-link="revenuelineitems"] tbody tr:eq(${index})`).within((tr) => {
+			Object.keys(data).forEach(key => {
+				this.set_field_value(moduleName, key, data[key], true)
+			});
+		})
+	}
+
+	add_quote_line_item(){
+		cy.get(`.quote-data-container a[aria-label="Actions"]`).click()
+        cy.get(`a[name="create_qli_button"]`).click()
+	}
+
+	qli_set_values(index, data, addNewLine = false){
+		const moduleName = "Products";
+		if(addNewLine){
+			this.add_quote_line_item()
+		}
+		cy.get(`table.quote-data-list-table tbody tr:eq(${index})`).within((tr) => {
 			Object.keys(data).forEach(key => {
 				this.set_field_value(moduleName, key, data[key], true)
 			});
