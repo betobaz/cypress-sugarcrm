@@ -95,7 +95,7 @@ class cySugar{
 	// 	})
 	// })
 	click_create(){
-		cy.get('[name="create_button"]').click();
+		cy.get('.main-pane [name="create_button"]').click();
 	}
 	
 	click_record_edit(){
@@ -132,11 +132,11 @@ class cySugar{
 	}
 	
 	// Cypress.Commands.add("selectEnumOption", (field_name, option) => {
-	select_enum_option(field_name, option) {
+	select_enum_option(field_name, option, options = {}) {
 		cy.get(`[data-fieldname="${field_name}"] a.select2-choice`).click()
 		cy.get('@body').find('div#select2-drop.select2-drop-active', {timeout:3000}).within(($selec2_results) => {
-			if (typeof option === "object" && option !== null) {
-				cy.contains(option.option).eq(option.index).click()
+			if(typeof option === 'object' && option !== null){
+				cy.contains(option.value).eq(options.index).click()
 			}
 			else{
 				cy.contains(option).click()
@@ -159,31 +159,34 @@ class cySugar{
 	// })
 	
 	// Cypress.Commands.add("selectRelateOption", (field_name, option) => {
-	select_relate_option(field_name, option, on_table = false) {
-		if(on_table){
+	select_relate_option(field_name, option, options = {}) {
+		var value = typeof option === 'object' && option !== null ? option.value : option;
+		var index = typeof option === 'object' && option !== null ? option.index : 0;
+		cy.log(options)
+		if(options.on_table){
 			cy.get(`[name="${field_name}"]`).parent().find(`a.select2-choice`).click()
 		}
 		else{
 			cy.get(`[data-fieldname="${field_name}"] a.select2-choice`).click()
 		}
-		let search = option;
-		if (typeof option === "object" && option !== null) {
-			search = option.option;
-		}
 		cy.get('@body').find('div#select2-drop.select2-drop-active').within(($selec2_results) => {
-			cy.get(`input.select2-input`).type(search)
-			if (typeof option === "object" && option !== null) {
-				cy.get(`li.select2-result-selectable:contains(${search})`, {timeout:10000}).eq(option.index).click()
+			cy.get(`input.select2-input`).type(value).then(()=>{
+				if(options.search_select){
+					cy.get(`div.select2-result-label:contains(Search and Select...)`, {timeout:10000}).click()
+				}
+				else{
+					cy.get(`li.select2-result-selectable:contains(${value})`, {timeout:10000}).eq(index).click()
+				}
+			})
+			
+		})
+		if(!options.search_select){
+			if(options.on_table){
+				return cy.get(`[name="${field_name}"]`)
 			}
 			else{
-				cy.get(`li.select2-result-selectable:contains(${search})`, {timeout:10000}).click()
+				return cy.get(`[data-fieldname="${field_name}"]`)
 			}
-		})
-		if(on_table){
-			return cy.get(`[name="${field_name}"]`)
-		}
-		else{
-			return cy.get(`[data-fieldname="${field_name}"]`)
 		}
 	}
 	
@@ -290,7 +293,10 @@ class cySugar{
 	//   })
 	
 	//   Cypress.Commands.add("set_field_value", (module, field_name, value) => {	
-	set_field_value (module, field_name, value, on_table = false) {	
+	// options.on_table
+	// options.index
+	set_field_value (module, field_name, value, options = {}) {	
+	// set_field_value (module, field_name, value, on_table = false) {	
 		cy.get('@metadata').then((metadata) => {
 			const field = metadata[module].fields[field_name]		
 			switch(field.type){
@@ -306,7 +312,7 @@ class cySugar{
 						cy.get(`div.fieldset-field[data-name=${field_name}] input[type=text][name=${field_name}]`).clear().type(value)
 					}
 					else{
-						if(on_table){
+						if(options.on_table){
 							cy.get(`input[type=text][name=${field_name}]`).clear().type(value)
 						}
 						else{
@@ -323,10 +329,10 @@ class cySugar{
 					}				
 				break
 				case "enum":
-					this.select_enum_option(field_name, value)
+					this.select_enum_option(field_name, value, options)
 				break;
 				case "relate":
-					this.select_relate_option(field_name, value, on_table)
+					this.select_relate_option(field_name, value, options)
 				break;
 				case "bool":
 					if(value){
@@ -384,36 +390,45 @@ class cySugar{
 		// })
 		
 	}
-
-	rli_set_values(index, data, addNewLine = false){
+	// options.addNewLine = false
+	// options.index
+	rli_set_values(index, data, options = {}){
+	// rli_set_values(index, data, addNewLine = false, options){
 		const moduleName = "RevenueLineItems";
-		if(addNewLine){
+		if(options.addNewLine){
 			var prevLine = index-1;
 			cy.get(`[data-subpanel-link="revenuelineitems"] tbody tr:eq(${prevLine}) .addBtn`).click()
 		}
+		let search_select = options.search_select ? options.search_select : false;
+		debugger;
 		cy.get(`[data-subpanel-link="revenuelineitems"] tbody tr:eq(${index})`).within((tr) => {
 			Object.keys(data).forEach(key => {
-				this.set_field_value(moduleName, key, data[key], true)
+				this.set_field_value(moduleName, key, data[key], {on_table:true, search_select:search_select})
 			});
 		})
 	}
 
-	add_quote_line_item(){
-		cy.get(`.quote-data-container a[aria-label="Actions"]`).click()
-        cy.get(`a[name="create_qli_button"]`).click()
-	}
-
-	qli_set_values(index, data, addNewLine = false){
-		const moduleName = "Products";
-		if(addNewLine){
-			this.add_quote_line_item()
-		}
-		cy.get(`table.quote-data-list-table tbody tr:eq(${index})`).within((tr) => {
-			Object.keys(data).forEach(key => {
-				this.set_field_value(moduleName, key, data[key], true)
-			});
+	list_build_filter(){
+		cy.get(`.filter-view .search-filter a`).click()
+		cy.get('@body').find('div#select2-drop.select2-drop-active', {timeout:3000}).within(($selec2_results) => {
+			cy.get('li:contains(Build Filter)').click()
 		})
 	}
+
+	list_set_filter(field, operator, value, options = {}){
+		cy.get(`.search-filter [data-filter="row"]:eq(0) [data-filter="field"] a`).click()
+		cy.get('@body').find('div#select2-drop.select2-drop-active', {timeout:3000}).within(($selec2_results) => {
+			cy.get(`li:contains(${field})`).click()
+		})
+		cy.get(`.search-filter [data-filter="row"]:eq(0) [data-filter="operator"] a`).click()
+		cy.get('@body').find('div#select2-drop.select2-drop-active', {timeout:3000}).within(($selec2_results) => {
+			cy.get(`li:contains(${operator})`).click()
+		})
+		cy.get(`.search-filter [data-filter="row"]:eq(0) [data-filter="value"] input`).type(value)
+		cy.get('@body').find('#alerts div.alert.alert-process', {timeout:30000}).should('be.visible')	
+		cy.get('@body').find('#alerts div.alert.alert-process', {timeout:90000}).should('not.exist')
+	}
+	
 };
 	
 export default new cySugar;

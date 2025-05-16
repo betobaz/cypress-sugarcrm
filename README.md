@@ -105,6 +105,16 @@ Syntax
     cySugar.login('admin');
 ```
 
+#### Logout
+
+Logs out of the SugarCRM application.
+
+```javascript
+    cySugar.logout();
+```
+
+### Navigation
+
 #### Visit
 
 Navigate to the specified SugarCRM URL and wait for the **Loading...** message disappear before proceeding to the next step.
@@ -133,6 +143,8 @@ Syntax
     cySugar.openSidebarNavModule('Opportunities');
 ```
 
+### Record
+
 #### Set Field Value
 This command sets a value in the recor view of a module using the system field name. The appropriate actions are performed base on the field's metadata type (e.g. varchar, int, enum, etc).
 
@@ -143,6 +155,12 @@ Syntax
     cySugar.set_field_value('Accounts','email1','company@abc.com');
     cySugar.set_field_value('Accounts','external_id_c','123456');
 ```
+
+
+
+### API
+
+
 
 #### Record Actions
 
